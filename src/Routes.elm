@@ -53,7 +53,7 @@ notFoundHandler =
 
 respond : Status -> String -> Request -> Response
 respond status body req =
-    { id = req.id
+    { res = req.res
     , status = status
     , body = body
     }

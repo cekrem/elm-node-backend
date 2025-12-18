@@ -45,7 +45,7 @@ main =
 
 
 init : () -> ( Model, Cmd Msg )
-init _ =
+init () =
     ( (), Cmd.none )
 
 
@@ -62,11 +62,11 @@ update msg model =
                 result =
                     Types.decodeRequest value
                         |> Result.map Routes.route
-                        |> Result.mapError (Types.errorResponse value)
             in
             case result of
                 Result.Ok res ->
                     ( model, response (Types.encodeResponse res) )
 
-                Result.Err res ->
-                    ( model, response (Types.encodeResponse res) )
+                Result.Err err ->
+                    -- TODO: Handle somehow
+                    ( model, Cmd.none )

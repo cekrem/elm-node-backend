@@ -15,7 +15,7 @@ npm start
 HTTP Request → Node → port request → Elm → port response → Node → HTTP Response
 ```
 
-The `id` field correlates responses back to the correct pending HTTP request.
+The Node.js response object is passed through Elm as an opaque `Decode.Value`, eliminating the need for request tracking or ID correlation. When Elm processes a request, it returns the same opaque response object, allowing Node to write directly to the correct HTTP response.
 
 ## Project structure
 

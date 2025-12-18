@@ -1,12 +1,10 @@
 module Types exposing
     ( Method(..)
     , Request
-    , RequestId
     , Response
     , Status(..)
     , decodeRequest
     , encodeResponse
-    , errorResponse
     )
 
 import Json.Decode as Decode exposing (Decoder)
@@ -15,10 +13,6 @@ import Json.Encode as Encode
 
 
 -- TYPES
-
-
-type RequestId
-    = RequestId String
 
 
 type Method
@@ -40,8 +34,12 @@ type Status
     | InternalError
 
 
+type alias OpaqueResponse =
+    Decode.Value
+
+
 type alias Request =
-    { id : RequestId
+    { res : OpaqueResponse
     , method : Method
     , path : String
     , body : String
@@ -49,7 +47,7 @@ type alias Request =
 
 
 type alias Response =
-    { id : RequestId
+    { res : OpaqueResponse
     , status : Status
     , body : String
     }
@@ -67,15 +65,15 @@ decodeRequest =
 requestDecoder : Decoder Request
 requestDecoder =
     Decode.map4 Request
-        (Decode.field "id" requestIdDecoder)
+        (Decode.field "res" Decode.value)
         (Decode.field "method" methodDecoder)
         (Decode.field "path" Decode.string)
         (Decode.field "body" Decode.string)
 
 
-requestIdDecoder : Decoder RequestId
-requestIdDecoder =
-    Decode.map RequestId Decode.string
+requestOpaqueResponseDecoder : Decoder Decode.Value
+requestOpaqueResponseDecoder =
+    Decode.field "res" Decode.value
 
 
 methodDecoder : Decoder Method
@@ -123,15 +121,10 @@ methodDecoder =
 encodeResponse : Response -> Encode.Value
 encodeResponse resp =
     Encode.object
-        [ ( "id", encodeRequestId resp.id )
+        [ ( "res", resp.res )
         , ( "status", encodeStatus resp.status )
         , ( "body", Encode.string resp.body )
         ]
-
-
-encodeRequestId : RequestId -> Encode.Value
-encodeRequestId (RequestId id) =
-    Encode.string id
 
 
 encodeStatus : Status -> Encode.Value
@@ -150,24 +143,3 @@ encodeStatus status =
             InternalError ->
                 500
         )
-
-
-
--- ERROR HANDLING
-
-
-{-| Extracts request ID from raw JSON for error correlation
--}
-errorResponse : Decode.Value -> Decode.Error -> Response
-errorResponse value err =
-    let
-        maybeId =
-            Decode.decodeValue (Decode.field "id" Decode.string) value
-                |> Result.toMaybe
-                |> Maybe.map RequestId
-                |> Maybe.withDefault (RequestId "unknown")
-    in
-    { id = maybeId
-    , status = BadRequest
-    , body = Decode.errorToString err
-    }
