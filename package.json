@@ -1,0 +1,24 @@
+{
+  "name": "elm-node-backend",
+  "version": "1.0.0",
+  "description": "Minimal Elm backend on Node.js. Elm handles routing via ports; Node handles HTTP.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "elm make src/Main.elm --output=elm.js --optimize && node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/cekrem/elm-node-backend"
+  },
+  "keywords": [
+    "elm",
+    "node",
+    "backend"
+  ],
+  "author": "Christian Ekrem",
+  "license": "MIT",
+  "devDependencies": {
+    "elm": "^0.19.1-6"
+  }
+}
