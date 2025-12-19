@@ -67,6 +67,5 @@ update msg model =
                 Result.Ok res ->
                     ( model, response (Types.encodeResponse res) )
 
-                Result.Err err ->
-                    -- TODO: Handle somehow
-                    ( model, Cmd.none )
+                Result.Err badRequestResponse ->
+                    ( model, response (Types.encodeResponse badRequestResponse) )

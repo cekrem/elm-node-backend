@@ -34,12 +34,12 @@ type Status
     | InternalError
 
 
-type alias OpaqueResponse =
-    Decode.Value
+type alias OpaqueResponseHandler =
+    Encode.Value
 
 
 type alias Request =
-    { res : OpaqueResponse
+    { responseHandler : OpaqueResponseHandler
     , method : Method
     , path : String
     , body : String
@@ -47,7 +47,7 @@ type alias Request =
 
 
 type alias Response =
-    { res : OpaqueResponse
+    { responseHandler : OpaqueResponseHandler
     , status : Status
     , body : String
     }
@@ -57,23 +57,30 @@ type alias Response =
 -- JSON DECODERS
 
 
-decodeRequest : Decode.Value -> Result Decode.Error Request
-decodeRequest =
-    Decode.decodeValue requestDecoder
+decodeRequest : Decode.Value -> Result Response Request
+decodeRequest req =
+    Decode.decodeValue requestDecoder req
+        |> Result.mapError
+            (\_ ->
+                let
+                    resHandler =
+                        Decode.decodeValue (Decode.field "responseHandler" Decode.value) req
+                            |> Result.withDefault Encode.null
+                in
+                { responseHandler = resHandler
+                , status = BadRequest
+                , body = ""
+                }
+            )
 
 
 requestDecoder : Decoder Request
 requestDecoder =
     Decode.map4 Request
-        (Decode.field "res" Decode.value)
+        (Decode.field "responseHandler" Decode.value)
         (Decode.field "method" methodDecoder)
         (Decode.field "path" Decode.string)
         (Decode.field "body" Decode.string)
-
-
-requestOpaqueResponseDecoder : Decoder Decode.Value
-requestOpaqueResponseDecoder =
-    Decode.field "res" Decode.value
 
 
 methodDecoder : Decoder Method
@@ -121,7 +128,7 @@ methodDecoder =
 encodeResponse : Response -> Encode.Value
 encodeResponse resp =
     Encode.object
-        [ ( "res", resp.res )
+        [ ( "responseHandler", resp.responseHandler )
         , ( "status", encodeStatus resp.status )
         , ( "body", Encode.string resp.body )
         ]

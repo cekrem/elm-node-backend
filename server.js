@@ -3,25 +3,25 @@ const { Elm } = require("./elm.js");
 
 const app = Elm.Main.init();
 
-app.ports.response.subscribe(({ res, ...payload }) => {
-  res.writeHead(payload.status);
-  res.end(payload.body);
+app.ports.response.subscribe(({ responseHandler, ...payload }) => {
+  responseHandler.writeHead(payload.status);
+  responseHandler.end(payload.body);
 });
 
 const serverPort = process.env.PORT || 8080;
 
 http
-  .createServer((req, res) => {
+  .createServer((request, responseHandler) => {
     let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
+    request.on("data", (chunk) => (body += chunk));
+    request.on("end", () => {
       app.ports.request.send({
-        method: req.method,
-        path: req.url,
+        method: request.method,
+        path: request.url,
         body,
-        res,
+        responseHandler,
         headers: Object.fromEntries(
-          Object.entries(req.headers).map(([k, v]) => [k, String(v)]),
+          Object.entries(request.headers).map(([k, v]) => [k, String(v)]),
         ),
       });
     });
