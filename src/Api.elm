@@ -1,4 +1,4 @@
-module Types exposing
+module Api exposing
     ( Method(..)
     , Request
     , Response

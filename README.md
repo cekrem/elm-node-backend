@@ -22,7 +22,7 @@ The Node.js response object is passed through Elm as an opaque `Decode.Value`, e
 ```
 src/
 ├── Main.elm    -- Program wiring (ports, subscriptions) - don't touch
-├── Types.elm   -- Stable types and JSON encoding - don't touch
+├── Api.elm     -- Stable types and JSON encoding - don't touch
 └── Routes.elm  -- Your routes and handlers - edit this!
 ```
 

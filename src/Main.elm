@@ -1,10 +1,10 @@
 port module Main exposing (main)
 
+import Api
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Platform
 import Routes
-import Types
 
 
 
@@ -60,12 +60,12 @@ update msg model =
         GotRequest value ->
             let
                 result =
-                    Types.decodeRequest value
+                    Api.decodeRequest value
                         |> Result.map Routes.route
             in
             case result of
                 Result.Ok res ->
-                    ( model, response (Types.encodeResponse res) )
+                    ( model, response (Api.encodeResponse res) )
 
                 Result.Err badRequestResponse ->
-                    ( model, response (Types.encodeResponse badRequestResponse) )
+                    ( model, response (Api.encodeResponse badRequestResponse) )

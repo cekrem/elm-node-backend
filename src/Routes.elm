@@ -1,6 +1,6 @@
 module Routes exposing (route)
 
-import Types exposing (Method(..), Request, Response, Status(..))
+import Api exposing (Method(..), Request, Response, Status(..))
 
 
 
